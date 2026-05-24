@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataPipeline-AI — ETL Pipeline Visualization</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1><span class="icon">⚡</span> DataPipeline-AI</h1>
+    <div class="header-controls">
+      <button class="btn btn-primary" id="btnStart">▶ Start Pipeline</button>
+      <button class="btn btn-outline" id="btnReset">↺ Reset</button>
+    </div>
+  </header>
+
+  <main class="main-layout">
+    <aside class="sidebar">
+      <h3>Pipeline Stages</h3>
+      <div class="pipeline-stage active" data-stage="extract">
+        <div class="stage-name"><span class="stage-dot complete"></span> Extract</div>
+        <div class="stage-type">3 sources configured</div>
+      </div>
+      <div class="pipeline-stage active" data-stage="transform">
+        <div class="stage-name"><span class="stage-dot running"></span> Transform</div>
+        <div class="stage-type">5 operations defined</div>
+      </div>
+      <div class="pipeline-stage active" data-stage="load">
+        <div class="stage-name"><span class="stage-dot idle"></span> Load</div>
+        <div class="stage-type">3 targets configured</div>
+      </div>
+
+      <h3 style="margin-top: 24px;">Progress</h3>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <h3 style="margin-top: 24px;">Configuration</h3>
+      <div class="pipeline-stage">
+        <div class="stage-name">Batch Size</div>
+        <div class="stage-type">10,000 records</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-name">Parallelism</div>
+        <div class="stage-type">4 workers</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-name">Retry Policy</div>
+        <div class="stage-type">3 attempts, exponential backoff</div>
+      </div>
+    </aside>
+
+    <section class="canvas-area">
+      <div class="metrics-overlay">
+        <div class="metric-badge">
+          <div class="value" id="metricThroughput">0/s</div>
+          <div class="label">Throughput</div>
+        </div>
+        <div class="metric-badge">
+          <div class="value" id="metricRecords">0</div>
+          <div class="label">Records</div>
+        </div>
+        <div class="metric-badge">
+          <div class="value" id="metricErrors">0</div>
+          <div class="label">Errors</div>
+        </div>
+        <div class="metric-badge">
+          <div class="value" id="metricElapsed">0s</div>
+          <div class="label">Elapsed</div>
+        </div>
+      </div>
+      <canvas id="pipelineCanvas"></canvas>
+      <div class="node-tooltip" id="nodeTooltip"></div>
+    </section>
+
+    <aside class="right-panel">
+      <div class="panel-section">
+        <h3>Pipeline Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">11</div>
+            <div class="stat-label">Nodes</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">14</div>
+            <div class="stat-label">Edges</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Sources</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Targets</div>
+          </div>
+        </div>
+      </div>
+      <div class="panel-section">
+        <h3>Execution Log</h3>
+      </div>
+      <div class="log-entries" id="logEntries"></div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
