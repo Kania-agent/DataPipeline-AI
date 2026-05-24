@@ -3,105 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DataPipeline-AI — ETL Pipeline Visualization</title>
+  <title>DataPipeline-AI — ETL Pipeline Tool</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="app-header">
-    <h1><span class="icon">⚡</span> DataPipeline-AI</h1>
-    <div class="header-controls">
-      <button class="btn btn-primary" id="btnStart">▶ Start Pipeline</button>
-      <button class="btn btn-outline" id="btnReset">↺ Reset</button>
+
+  <!-- Header -->
+  <header>
+    <h1>⚡ Data<span>Pipeline</span>-AI</h1>
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-sm" id="btnClearAll" disabled>Clear All</button>
+      <button class="btn btn-green btn-sm" id="btnRunPipeline" disabled>▶ Run Pipeline</button>
     </div>
   </header>
 
-  <main class="main-layout">
-    <aside class="sidebar">
-      <h3>Pipeline Stages</h3>
-      <div class="pipeline-stage active" data-stage="extract">
-        <div class="stage-name"><span class="stage-dot complete"></span> Extract</div>
-        <div class="stage-type">3 sources configured</div>
-      </div>
-      <div class="pipeline-stage active" data-stage="transform">
-        <div class="stage-name"><span class="stage-dot running"></span> Transform</div>
-        <div class="stage-type">5 operations defined</div>
-      </div>
-      <div class="pipeline-stage active" data-stage="load">
-        <div class="stage-name"><span class="stage-dot idle"></span> Load</div>
-        <div class="stage-type">3 targets configured</div>
-      </div>
+  <div class="container">
 
-      <h3 style="margin-top: 24px;">Progress</h3>
-      <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
+    <!-- Status Bar -->
+    <div class="status-bar" id="statusBar">
+      <div class="stat-badge">Rows: <span class="stat-value" id="statRows">0</span></div>
+      <div class="stat-badge">Columns: <span class="stat-value" id="statCols">0</span></div>
+      <div class="stat-badge">Stages: <span class="stat-value" id="statStages">0</span></div>
+      <div class="stat-badge">Source: <span class="stat-value" id="statSource">None</span></div>
+    </div>
 
-      <h3 style="margin-top: 24px;">Configuration</h3>
-      <div class="pipeline-stage">
-        <div class="stage-name">Batch Size</div>
-        <div class="stage-type">10,000 records</div>
-      </div>
-      <div class="pipeline-stage">
-        <div class="stage-name">Parallelism</div>
-        <div class="stage-type">4 workers</div>
-      </div>
-      <div class="pipeline-stage">
-        <div class="stage-name">Retry Policy</div>
-        <div class="stage-type">3 attempts, exponential backoff</div>
-      </div>
-    </aside>
+    <div class="main-grid">
 
-    <section class="canvas-area">
-      <div class="metrics-overlay">
-        <div class="metric-badge">
-          <div class="value" id="metricThroughput">0/s</div>
-          <div class="label">Throughput</div>
-        </div>
-        <div class="metric-badge">
-          <div class="value" id="metricRecords">0</div>
-          <div class="label">Records</div>
-        </div>
-        <div class="metric-badge">
-          <div class="value" id="metricErrors">0</div>
-          <div class="label">Errors</div>
-        </div>
-        <div class="metric-badge">
-          <div class="value" id="metricElapsed">0s</div>
-          <div class="label">Elapsed</div>
-        </div>
-      </div>
-      <canvas id="pipelineCanvas"></canvas>
-      <div class="node-tooltip" id="nodeTooltip"></div>
-    </section>
-
-    <aside class="right-panel">
-      <div class="panel-section">
-        <h3>Pipeline Stats</h3>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-value">11</div>
-            <div class="stat-label">Nodes</div>
+      <!-- Left Column: Upload + Pipeline -->
+      <div>
+        <!-- Upload Card -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <h2><span class="icon">📁</span> Data Source</h2>
+            <span id="fileName" style="font-size:0.8rem;color:var(--text-muted);"></span>
           </div>
-          <div class="stat-item">
-            <div class="stat-value">14</div>
-            <div class="stat-label">Edges</div>
+          <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">📤</div>
+            <p>Drop a CSV or JSON file here, or click to browse</p>
+            <div class="file-types">Supports .csv and .json</div>
+            <input type="file" id="fileInput" accept=".csv,.json">
           </div>
-          <div class="stat-item">
-            <div class="stat-value">3</div>
-            <div class="stat-label">Sources</div>
+          <div id="extractPreview"></div>
+        </div>
+
+        <!-- Pipeline Editor Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2><span class="icon">🔧</span> Transform Pipeline</h2>
           </div>
-          <div class="stat-item">
-            <div class="stat-value">3</div>
-            <div class="stat-label">Targets</div>
+          <div class="pipeline-container">
+            <div class="stage-list" id="stageList">
+              <div class="empty-state" id="emptyStages">
+                <div class="empty-icon">🔗</div>
+                <p>No transform stages yet. Add one below.</p>
+              </div>
+            </div>
+          </div>
+          <div class="add-stage-bar">
+            <select id="addStageType">
+              <option value="">+ Add Transform Stage…</option>
+              <option value="filter">🔍 Filter Rows</option>
+              <option value="map">🔄 Map Columns</option>
+              <option value="sort">↕ Sort</option>
+              <option value="aggregate">📊 Aggregate</option>
+              <option value="deduplicate">🧹 Deduplicate</option>
+            </select>
           </div>
         </div>
       </div>
-      <div class="panel-section">
-        <h3>Execution Log</h3>
+
+      <!-- Right Column: Preview -->
+      <div>
+        <div class="card" id="previewCard">
+          <div class="card-header">
+            <h2><span class="icon">👁</span> Data Preview</h2>
+          </div>
+          <div class="tab-bar" id="previewTabs"></div>
+          <div id="previewContent">
+            <div class="empty-state">
+              <div class="empty-icon">📋</div>
+              <p>Upload a file and run the pipeline to see data here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Card -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h2><span class="icon">💾</span> Export</h2>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-accent" id="btnExportCSV" disabled>Download CSV</button>
+            <button class="btn btn-accent" id="btnExportJSON" disabled>Download JSON</button>
+          </div>
+        </div>
       </div>
-      <div class="log-entries" id="logEntries"></div>
-    </aside>
-  </main>
+
+    </div>
+  </div>
+
+  <!-- Stage Config Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="stageModal">
+      <h3 id="modalTitle">Configure Stage</h3>
+      <div id="modalForm"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="modalCancel">Cancel</button>
+        <button class="btn btn-accent" id="modalSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
 
   <script src="app.js"></script>
 </body>
